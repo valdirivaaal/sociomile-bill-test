@@ -19,7 +19,7 @@ abstract class DuskTestCase extends BaseTestCase
      */
     public static function prepare()
     {
-        static::startChromeDriver();
+        // static::startChromeDriver();
     }
 
     /**
@@ -31,13 +31,17 @@ abstract class DuskTestCase extends BaseTestCase
     {
         $options = (new ChromeOptions)->addArguments([
             '--disable-gpu',
-            '--headless'
+            '--window-size=1366, 768'
         ]);
 
-        return RemoteWebDriver::create(
+        $driver = RemoteWebDriver::create(
             'http://localhost:9515', DesiredCapabilities::chrome()->setCapability(
                 ChromeOptions::CAPABILITY, $options
             )
         );
+
+        // $size = new WebDriverDimension(1366, 768);
+        // $driver->manage()->window()->setSize($size);
+        return $driver;
     }
 }
