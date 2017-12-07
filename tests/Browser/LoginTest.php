@@ -66,4 +66,57 @@ class LoginTest extends DuskTestCase
                     ->assertSee('Your email and password combination does not match');
         });
     }
+
+    /**
+     * Skenario untuk lupa password
+     *
+     * @group forgetPassword
+     * @return void
+     */
+    public function testForgetPassword()
+    {
+        $this->browse(function (Browser $browser) {
+            $browser->maximize()
+                    ->visit('/forgot-password')
+                    ->assertSee('Forgot your password?')
+                    ->type('email', 'johnsnow@mailinator.com')
+                    ->click('#btnlogin')
+                    ->waitForText('Password reset link Sent');
+        });
+    }
+
+    /**
+     * Skenario buka link lupa password lewat email
+     *
+     * @group linkForgetPassword
+     * @return void
+     */
+    public function testLinkForgetPassword()
+    {
+        $this->browse(function (Browser $browse) {
+            $response = $browser->maximize()
+                                ->visit('http://mailinator.com')
+                                ->assertSee('Mailinator')
+                                ->type('input[type=text]', 'johnsnow@mailinator.com')
+                                ->click('button.btn.btn-dark')
+                                ->waitForText('Reset Password')
+                                ->click('ul.single_mail-body > li.all_message-item:first-child > div > div.all_message-min_text.all_message-min_text-3')
+                                ->waitForText('Password Reset Confirmation')
+                                ->switchFrame('msg_body')
+                                ->clickLink('Reset now')
+            // Stay di tab reset password
+            $window = collect($response->driver->getWindowHandles())->last();
+            $response->driver->switchTo->window($window);
+            $response->waitForText('Please enter your new password.')
+                     ->type('password', '123456')
+                     ->type('password2', '123456')
+                     ->click('#btnlogin');
+            /**
+             * Note :
+             * Seharusnya setelah ini tampil halaman reset password sukses,
+             * sedangkan sekarang yg tampil malah halaman link reset password terkirim
+             *
+             */
+        })
+    }
 }
