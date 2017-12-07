@@ -11,6 +11,7 @@ class RegisterTest extends DuskTestCase
     /**
      * Skenario untuk melakukan pendaftaran dengan mengisi semua form (Positif)
      *
+     * @group registerTrue
      * @return void
      */
     public function testRegister()
@@ -22,7 +23,34 @@ class RegisterTest extends DuskTestCase
                     ->visit('/register')
                     ->assertSee('REGISTER')
                     ->type('name', 'Jack Bizzy')
-                    ->type('email', 'jackbizzy2@mailinator.com')
+                    ->type('email', 'jackbizzy3@mailinator.com')
+                    ->type('company', 'Jack B')
+                    ->type('phone', '021525235401')
+                    ->type('password', '123456')
+                    ->type('password2', '123456')
+                    ->check('input[type=checkbox]');
+            $browser->element('#btnStarted')->getLocationOnScreenOnceScrolledIntoView();
+            $browser->click('#btnStarted')
+                    ->waitForText('ACTIVATE', 10);
+        });
+    }
+
+    /**
+     * Skenario untuk melakukan pendaftaran dengan mengisi semua form (Positif)
+     *
+     * @group registerUncomplete
+     * @return void
+     */
+    public function testRegisterUncomplete()
+    {
+        $this->browse(function (Browser $browser) {
+
+            # Bagian mengisi field form pendaftaran
+            $browser->maximize()
+                    ->visit('/register')
+                    ->assertSee('REGISTER')
+                    ->type('name', 'Jack Bizzy')
+                    // ->type('email', 'jackbizzy2@mailinator.com')
                     ->type('company', 'Jack B')
                     ->type('phone', '021525235401')
                     ->type('password', '123456')
@@ -37,7 +65,7 @@ class RegisterTest extends DuskTestCase
     /**
      * Skenario untuk verifikasi email (Positif)
      *
-     * @group one
+     * @group verifyTrue
      * @return void
      */
     public function testVerificationEmail()
@@ -57,6 +85,34 @@ class RegisterTest extends DuskTestCase
             $window = collect($response->driver->getWindowHandles())->last();
             $response->driver->switchTo()->window($window);
             $response->waitForText('Warning');
+        });
+    }
+
+    /**
+     * Skenario untuk verifikasi email (Wrong Validation Key)
+     *
+     * @group verifyWrongKey
+     * @return void
+     */
+    public function testVerificationEmailWrongKey()
+    {
+        $this->browse(function (Browser $browser) {
+            # Bagian aktivasi akun
+            $response = $browser->visit('http://mailinator.com')
+                                ->assertSee('Mailinator')
+                                ->type('input[type=text]', 'jackbizzy3@mailinator.com')
+                                ->click('button.btn.btn-dark')
+                                ->waitForText('Verify Account')
+                                ->click('ul.single_mail-body > li.all_message-item:first-child > div > div.all_message-min_text.all_message-min_text-3')
+                                ->waitForText('Verify Account')
+                                ->switchFrame('msg_body');
+                                // ->clickLink('Verify now');
+            // Ambil kode verifikasi
+            $code = $browser->text('div.item > p > small > code:nth-child(3)');
+
+            // Lanjut ke halaman verifikasi
+            $browser->visit('https://billing-sm.s45.in/verification?code='.$code.'k')
+                    ->assertSee('Wrong verification code');
         });
     }
 }
