@@ -31,6 +31,7 @@ abstract class DuskTestCase extends BaseTestCase
     {
         $options = (new ChromeOptions)->addArguments([
             '--disable-gpu',
+            '--disable-web-security',
             '--window-size=1366, 768'
         ]);
 

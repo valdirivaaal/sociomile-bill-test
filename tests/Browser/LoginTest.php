@@ -14,14 +14,14 @@ class LoginTest extends DuskTestCase
      * @group login
      * @return void
      */
-    public function testLogin()
+    public function testLogin($email, $password)
     {
-        $this->browse(function (Browser $browser) {
+        $this->browse(function (Browser $browser) use ($email, $password) {
             $browser->maximize()
                     ->visit('/login')
                     ->assertSee('Login Now')
-                    ->type('email', 'johnsnow@mailinator.com')
-                    ->type('password', '123456')
+                    ->type('email', $email)
+                    ->type('password', $password)
                     ->click('#btnlogin')
                     ->waitForText('Price and Plan')
                     ->assertSee('Price and Plan');
@@ -103,7 +103,7 @@ class LoginTest extends DuskTestCase
                                 ->click('ul.single_mail-body > li.all_message-item:first-child > div > div.all_message-min_text.all_message-min_text-3')
                                 ->waitForText('Password Reset Confirmation')
                                 ->switchFrame('msg_body')
-                                ->clickLink('Reset now')
+                                ->clickLink('Reset now');
             // Stay di tab reset password
             $window = collect($response->driver->getWindowHandles())->last();
             $response->driver->switchTo->window($window);
@@ -117,6 +117,7 @@ class LoginTest extends DuskTestCase
              * sedangkan sekarang yg tampil malah halaman link reset password terkirim
              *
              */
-        })
+            $response->assertSee('Success');
+        });
     }
 }
