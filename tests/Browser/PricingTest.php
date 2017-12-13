@@ -63,9 +63,13 @@ class PricingTest extends DuskTestCase
     {
         // Do lgin
         $login = new LoginTest;
-        $login->testLogin('jackbizzy7@mailinator.com', '123456');
+        $login->testLogin('jackbizzy8@mailinator.com', '123456');
 
         $this->browse(function (Browser $browser) {
+
+            // Scroll ke button purchase
+            $browser->element('div.choose-plan.padding-none.blue > div.plan-footer > a.btn.btn-primary')->getLocationOnScreenOnceScrolledIntoView();
+
             $browser->click('div.choose-plan.padding-none.blue > div.plan-footer > a.btn.btn-primary')
                     ->waitForText('Bronze')
                     ->assertSee('Annually')
@@ -83,11 +87,21 @@ class PricingTest extends DuskTestCase
                     ->assertSee('Package: Bronze Package')
                     ->click('button.swal2-confirm')
                     ->pause(5000)
-                    ->waitFor('iframe[id=sample-inline-frame]')
-                    ->switchFrame('sample-inline-frame')
-                    ->pause(15000);
+                    ->waitFor('iframe[id=sample-inline-frame]');
+
+                    // Switch ke frame parent
+                    $browser->switchFrame('sample-inline-frame');
+
+                    // Switch ke parent child
                     $browser->driver->switchTo()->frame('authWindow');
-                    $browser->assertSee('Merchant: Xendit');
+                    $browser->assertSee('Merchant: Xendit')
+                            ->type('external.field.password', '1234')
+                            ->press('Submit')
+                            ->waitUntilMissing('authWindow')
+                            ->waitUntilMissing('sample-inline-frame');
+                    $browser->driver->switchTo()->defaultContent();
+                    $browser->waitForText('Payment Success!', 15)
+                    ;
         });
     }
 }
