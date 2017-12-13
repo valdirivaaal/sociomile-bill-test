@@ -120,4 +120,23 @@ class LoginTest extends DuskTestCase
             $response->assertSee('Success');
         });
     }
+
+    /**
+     * Skenario logout
+     *
+     * @group logout
+     * @return void
+     */
+    public function testLogOut()
+    {
+        // Do login
+        $this->testLogin('jackbizzy6@mailinator.com', '123456');
+
+        $this->browse(function (Browser $browse) {
+            $browse->click('#dropdown10')
+                    ->assertSee('Logout')
+                    ->click('#navbarCollapse > ul > li > div > a:nth-child(3)')
+                    ->waitForText('Login');
+        });
+    }
 }

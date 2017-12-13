@@ -10,7 +10,7 @@ use Tests\Browser\LoginTest;
 class PricingTest extends DuskTestCase
 {
     /**
-     * A Dusk test example.
+     * Skenario untuk user memilih trial bronze package.
      *
      * @group bronzeTrial
      * @return void
@@ -30,6 +30,9 @@ class PricingTest extends DuskTestCase
                     ->waitFor('div.choose-plan.padding-none.blue')
                     ->waitFor('a.btn.btn-light.block');
         });
+
+        // Logout
+        $login->testLogOut();
     }
 
     /**
@@ -100,8 +103,42 @@ class PricingTest extends DuskTestCase
                             ->waitUntilMissing('authWindow')
                             ->waitUntilMissing('sample-inline-frame');
                     $browser->driver->switchTo()->defaultContent();
-                    $browser->waitForText('Payment Success!', 15)
-                    ;
+                    $browser->waitForText('Payment Success!', 15);
+
+                // Logout
+                $login->testLogOut();
         });
+    }
+
+    /**
+     * Skenario untuk user melihat invoice bulanan
+     *
+     * @group invoiceBulanan
+     * @return void
+     */
+    public function testInvoiceBulanan()
+    {
+        // Do login
+        $login = new LoginTest;
+        $login->testLogin('jackbizzy8@mailinator.com', '123456');
+
+        $this->browse(function (Browser $browser) {
+            $browser->click('#v-pills-billing-tab')
+                    ->waitForText('View Invoice')
+                    ->click('#v-pills-billing > div > div.card-body > table > tbody > tr > td:nth-child(7) > a');
+
+            // Stay di tab invoice
+            $tabInvoice = collect($browser->driver->getWindowHandles())->last();
+            $browser->driver->switchTo()->window($tabInvoice);
+            $browser->waitForText('INVOICE')
+                    ->click('#HTMLtoPdfInvoice > div > p > i.fa.fa-file-pdf-o.fa-2x')
+                    ->pause(1000);
+
+            //Stay di tab download pdf
+            // $tabDownload = collect($browser->driver->getWindowHandles())->last();
+            // $browser->assertPathIs('/me/pdf-invoice');
+        });
+
+
     }
 }
