@@ -141,4 +141,186 @@ class PricingTest extends DuskTestCase
 
 
     }
+
+    /**
+     * Skenario untuk cek apakah suatu paket sudah aktif atau belum
+     *
+     * @group checkActivePackage
+     * @return void
+     */
+    public function testCheckActivePackage()
+    {
+        // Do login
+        $login = new LoginTest;
+        $login->testLogin('jackbizzy9@mailinator.com', '123456');
+
+        $this->browse(function (Browser $browser) {
+
+            $package = "Silver";
+            $nthChild = "2";
+
+            $browser->assertSee('You have selected '.$package.' Package');
+            $isSilver = $browser->script('return $("#v-pills-subscrip > div > div.card-body > div.body-content > div > div:nth-child('.$nthChild.')").hasClass("blue")');
+        });
+
+        // Logout
+        $login->testLogOut();
+    }
+
+    /**
+     * Skenario untuk test payment jika data credit card kosong
+     *
+     * @group paymentBlankCC
+     * @return void
+     */
+    public function testPaymentBlankCC()
+    {
+        // Do login
+        $login = new LoginTest;
+        $login->testLogin('jackbizzy6@mailinator.com', '123456');
+
+        $this->browse(function (Browser $browser) {
+
+            $package = "Bronze";
+            $nthChild = "1";
+
+            $browser->waitForText('You have selected '.$package.' Package');
+
+            $browser->element('div.choose-plan:nth-child('.$nthChild.') > div.plan-footer > a.btn.btn-primary')->getLocationOnScreenOnceScrolledIntoView();
+
+            $browser->click('div.choose-plan:nth-child('.$nthChild.') > div.plan-footer > a.btn.btn-primary')
+                    ->waitForText($package)
+                    ->click('button.btn.btn-primary.btn-block')
+                    ->waitForText('Card Number')
+                    ->click('button#load')
+                    ->assertDontSee('Package: '.$package.' Package');
+        });
+
+        // Logout
+        $login->testLogOut();
+    }
+
+    /**
+     * Skenario untuk test payment jika data credit card kosong dan sudah terisi kembali
+     *
+     * @group paymentUpdateCC
+     * @return void
+     */
+    public function testPaymentUpdateCC()
+    {
+        // Do login
+        $login = new LoginTest;
+        $login->testLogin('jackbizzy6@mailinator.com', '123456');
+
+        $this->browse(function (Browser $browser) {
+
+            $package = "Bronze";
+            $nthChild = "1";
+
+            $browser->waitForText('You have selected '.$package.' Package');
+
+            $browser->element('div.choose-plan:nth-child('.$nthChild.') > div.plan-footer > a.btn.btn-primary')->getLocationOnScreenOnceScrolledIntoView();
+
+            $browser->click('div.choose-plan:nth-child('.$nthChild.') > div.plan-footer > a.btn.btn-primary')
+                    ->waitForText($package)
+                    ->click('button.btn.btn-primary.btn-block')
+                    ->waitForText('Card Number')
+                    ->click('button#load')
+                    ->assertDontSee('Package: '.$package.' Package')
+                    ->type('number', '4000000000000002')
+                    ->type('first-name', 'Jack')
+                    ->type('last-name', 'Bizzy')
+                    ->type('expiry', '112025')
+                    ->type('cvc', '123')
+                    ->click('button#load')
+                    ->waitFor('div.swal2-modal')
+                    ->assertSee('Package: '.$package.' Package');
+        });
+
+        // Logout
+        $login->testLogOut();
+    }
+
+    /**
+     * Skenario untuk test payment dengan mengisi payment method secara tidak lengkap
+     *
+     * @group paymentIncomplete
+     * @return void
+     */
+    public function testIncompletePaymentMethod()
+    {
+        // Do login
+        $login = new LoginTest;
+        $login->testLogin('jackbizzy6@mailinator.com', '123456');
+
+        $this->browse(function (Browser $browser) {
+
+            $package = "Bronze";
+            $nthChild = "1";
+
+            $browser->waitForText('You have selected '.$package.' Package');
+
+            $browser->element('div.choose-plan:nth-child('.$nthChild.') > div.plan-footer > a.btn.btn-primary')->getLocationOnScreenOnceScrolledIntoView();
+
+            $browser->click('div.choose-plan:nth-child('.$nthChild.') > div.plan-footer > a.btn.btn-primary')
+                    ->waitForText($package)
+                    ->click('button.btn.btn-primary.btn-block')
+                    ->waitForText('Card Number')
+                    ->type('number', '4000000000000002')
+                    ->type('first-name', 'Jack')
+                    ->type('expiry', '112025')
+                    ->type('cvc', '123')
+                    ->click('button#load')
+                    ->assertDontSee('Package: '.$package.' Package')
+                    ->click('button#load');
+        });
+
+        // Logout
+        $login->testLogOut();
+    }
+
+    /**
+     * Skenario untuk test payment dengan mengisi informasi payment method yang salah
+     *
+     * @group paymentInvalid
+     * @return void
+     */
+    public function testInvalidPaymentMethod()
+    {
+        // Do login
+        $login = new LoginTest;
+        $login->testLogin('jackbizzy6@mailinator.com', '123456');
+
+        $this->browse(function (Browser $browser) {
+
+            $package = "Bronze";
+            $nthChild = "1";
+
+            $browser->waitForText('You have selected '.$package.' Package');
+
+            $browser->element('div.choose-plan:nth-child('.$nthChild.') > div.plan-footer > a.btn.btn-primary')->getLocationOnScreenOnceScrolledIntoView();
+
+            $browser->click('div.choose-plan:nth-child('.$nthChild.') > div.plan-footer > a.btn.btn-primary')
+                    ->waitForText($package)
+                    ->click('button.btn.btn-primary.btn-block')
+                    ->waitForText('Card Number')
+                    ->type('number', '5000000000000002')
+                    ->type('first-name', 'Jack')
+                    ->type('last-name', 'B')
+                    ->type('expiry', '112025')
+                    ->type('cvc', '123')
+                    ->click('button#load')
+                    ->waitFor('div.swal2-modal')
+                    ->assertSee('Package: '.$package.' Package')
+                    ->click('button.swal2-confirm')
+                    ->waitUntilMissing('div.swal2-modal')
+                    ->waitFor('div.swal2-modal')
+                    ->assertSee('VALIDATION_ERROR')
+                    ->assertSee('One or more validation errors occurred')
+                    ->click('button.swal2-confirm');
+        });
+
+        // Logout
+        $login->testLogOut();
+    }
 }
