@@ -5,9 +5,12 @@ namespace Tests\Browser;
 use Tests\DuskTestCase;
 use Laravel\Dusk\Browser;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
+use Tests\Browser\Pages\Login;
+use App\User;
 
 class LoginTest extends DuskTestCase
 {
+    // use DatabaseMigrations;
     /**
      * Skenario untuk login.
      *
@@ -138,6 +141,27 @@ class LoginTest extends DuskTestCase
                     ->assertSee('Logout')
                     ->click('#navbarCollapse > ul > li > div > a:nth-child(3)')
                     ->waitForText('Login');
+        });
+    }
+
+    /**
+     * Skenario Login testing dengan menggunakan LoginPage
+     *
+     * @group loginWithPageMethod
+     *
+     */
+    public function testLoginWithPageMethod()
+    {
+        // $user = factory(User::class)->create([
+        //     'email' => 'jackbizzy6@mailinator.com'
+        // ]);
+        User::where('name', 'jack')->delete();
+        User::create(['name' => 'haidar', 'email' => 'haidarafifmaulana@gmail.com', 'password' => bcrypt('rahasia')]);
+
+        $this->browse(function (Browser $browser) {
+            $browser->on(new Login)
+                    ->login()
+                    ->waitForText('Pricing');
         });
     }
 }

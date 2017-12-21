@@ -6,6 +6,8 @@ use Tests\DuskTestCase;
 use Laravel\Dusk\Browser;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Tests\Browser\LoginTest;
+use Tests\Browser\Pages\PriceAndPlan;
+
 
 class PricingTest extends DuskTestCase
 {
@@ -19,16 +21,25 @@ class PricingTest extends DuskTestCase
     {
         // Do login
         $login = new LoginTest;
-        $login->testLogin('jackbizzy6@mailinator.com', '123456');
+        $login->testLogin('jackbizzy16@mailinator.com', '123456');
 
         $this->browse(function (Browser $browser) {
-            $browser->waitFor('button#trial-1.btn.btn-light.border-primary')
-                    ->waitFor('div.choose-plan')
-                    ->click('#trial-1')
-                    ->waitForText('Success')
-                    ->click('button.swal2-confirm.swal2-styled')
-                    ->waitFor('div.choose-plan.padding-none.blue')
-                    ->waitFor('a.btn.btn-light.block');
+            $browser->on(new PriceAndPlan)
+                    ->driver->executeScript('window.scrollTo(0, 500)');
+            $browser->waitFor('@btnTrialBronze')
+                    ->click('@btnTrialBronze')
+                    ->whenAvailable('.swal2-modal', function($modal) {
+                        $modal->waitForText('Success')
+                              ->click('button.swal2-confirm.swal2-styled');
+                      })
+                    ->waitUntilMissing('.swal2-modal')
+                    ->waitForText('You have selected 7 days') // Teks paket terpilih
+                    ->assert('@divBronzeSelected') // Div paket terpilih berubah menjadi biru
+                    ->assert('@divSilverUnselected') // Div paket yg tidak terpilih menjadi abu
+                    ->assert('@divGoldUnselected') // Div paket yg tidak terpilih menjadi abu
+                    ->assert('@btnTrialBronzeBlocked') // Button bronze blocked
+                    ->assert('@btnTrialSilverDisabled') // Button silver disabled
+                    ->assert('@btnTrialGoldDisabled'); // Button gold disabled
         });
 
         // Logout
@@ -66,48 +77,62 @@ class PricingTest extends DuskTestCase
     {
         // Do lgin
         $login = new LoginTest;
-        $login->testLogin('jackbizzy8@mailinator.com', '123456');
+        $login->testLogin('jackbizzy16@mailinator.com', '123456');
 
         $this->browse(function (Browser $browser) {
 
-            // Scroll ke button purchase
-            $browser->element('div.choose-plan.padding-none.blue > div.plan-footer > a.btn.btn-primary')->getLocationOnScreenOnceScrolledIntoView();
-
-            $browser->click('div.choose-plan.padding-none.blue > div.plan-footer > a.btn.btn-primary')
-                    ->waitForText('Bronze')
-                    ->assertSee('Annually')
-                    ->assertSeeIn('span#package-price', '$180')
-                    ->assertSeeIn('span#total-price', '$180')
-                    ->click('button.btn.btn-primary.btn-block')
-                    ->assertSee('Card Number')
-                    ->type('number', '4000000000000002')
-                    ->type('first-name', 'Jack')
-                    ->type('last-name', 'Bizzy')
-                    ->type('expiry', '112025')
-                    ->type('cvc', '123')
-                    ->click('button#load')
-                    ->waitFor('div.swal2-modal')
-                    ->assertSee('Package: Bronze Package')
-                    ->click('button.swal2-confirm')
-                    ->pause(5000)
-                    ->waitFor('iframe[id=sample-inline-frame]');
-
-                    // Switch ke frame parent
-                    $browser->switchFrame('sample-inline-frame');
-
-                    // Switch ke parent child
-                    $browser->driver->switchTo()->frame('authWindow');
-                    $browser->assertSee('Merchant: Xendit')
-                            ->type('external.field.password', '1234')
-                            ->press('Submit')
-                            ->waitUntilMissing('authWindow')
-                            ->waitUntilMissing('sample-inline-frame');
-                    $browser->driver->switchTo()->defaultContent();
-                    $browser->waitForText('Payment Success!', 15);
-
-                // Logout
-                $login->testLogOut();
+            // Beli paket bronze
+            $this->purchaseBronze($browser);
         });
+
+        // Logout
+        $login->testLogOut();
+    }
+
+    /**
+     * Skenario purchase silver package dengan plan annually
+     * Kondisinya adalah sebelumnya user sudah click trial 7 hari
+     *
+     * @group purchaseSilver
+     * @return void
+     */
+    public function testPurchaseSilver()
+    {
+        // Do lgin
+        $login = new LoginTest;
+        $login->testLogin('jackbizzy16@mailinator.com', '123456');
+
+        $this->browse(function (Browser $browser) {
+
+            // Beli paket silver
+            $this->purchaseSilver($browser);
+        });
+
+        // Logout
+        $login->testLogOut();
+    }
+
+    /**
+     * Skenario purchase gold package dengan plan annually
+     * Kondisinya adalah sebelumnya user sudah click trial 7 hari
+     *
+     * @group purchaseGold
+     * @return void
+     */
+    public function testPurchaseGold()
+    {
+        // Do lgin
+        $login = new LoginTest;
+        $login->testLogin('jackbizzy17@mailinator.com', '123456');
+
+        $this->browse(function (Browser $browser) {
+
+            // Beli paket gold
+            $this->purchaseGold($browser);
+        });
+
+        // Logout
+        $login->testLogOut();
     }
 
     /**
@@ -322,5 +347,162 @@ class PricingTest extends DuskTestCase
 
         // Logout
         $login->testLogOut();
+    }
+
+    /**
+     * Skenario untuk test akun yang sudah expired
+     *
+     * @group expiredAccount
+     * @return void
+     */
+    public function testExpiredPackage()
+    {
+        // Do login
+        $login = new LoginTest;
+        $login->testLogin('jackbuzz@mailinator.com', '123456');
+
+        $this->browse(function (Browser $browser) {
+            // Cek kondisi apakah benar halaman expire
+            $browser->on(new PriceAndPlan)
+                    ->waitForText('Your trial period is end, please select package to continue')
+                    ->assert('@btnTrialBronzeDisabled')
+                    ->assert('@btnTrialSilverDisabled')
+                    ->assert('@btnTrialGoldDisabled');
+
+            // Beli paket bronze
+            $this->purchaseBronze($browser);
+        });
+
+        // LogOut
+        $login->testLogOut();
+    }
+
+    /**
+     * Method untuk skenario purchase package
+     *
+     * @param Browser $browser
+     * @return void
+     */
+    public function purchaseBronze($browser)
+    {
+        $browser->on(new PriceAndPlan)
+                ->driver->executeScript('window.scrollTo(0, 500)');
+        $browser->click('@btnPurchaseBronze')
+                ->waitForText('Bronze')
+                ->assertSee('Yearly')
+                ->assertSeeIn('span#package-price', '$180')
+                ->assertSeeIn('span#total-price', '$180')
+                ->click('button.btn.btn-primary.btn-block')
+                ->assertSee('Card Number')
+                ->type('number', '4000000000000002')
+                ->type('first-name', 'Jack')
+                ->type('last-name', 'Bizzy')
+                ->type('expiry', '112025')
+                ->type('cvc', '123')
+                ->click('button#load')
+                ->waitFor('div.swal2-modal')
+                ->assertSee('Package: Bronze Package')
+                ->click('button.swal2-confirm')
+                ->pause(10000)
+                ->waitFor('iframe[id=sample-inline-frame]');
+
+                // Switch ke frame parent
+                $browser->switchFrame('sample-inline-frame');
+
+                // Switch ke parent child
+                $browser->driver->switchTo()->frame('authWindow');
+                $browser->assertSee('Merchant: Xendit')
+                        ->type('external.field.password', '1234')
+                        ->press('Submit')
+                        ->waitUntilMissing('authWindow')
+                        ->waitUntilMissing('sample-inline-frame');
+                $browser->driver->switchTo()->defaultContent();
+                $browser->waitForText('Payment Success!', 15);
+    }
+
+    /**
+     * Method untuk skenario purchase package
+     *
+     * @param Browser $browser
+     * @return void
+     */
+    public function purchaseSilver($browser)
+    {
+        $browser->on(new PriceAndPlan)
+                ->driver->executeScript('window.scrollTo(0, 500)');
+        $browser->click('@btnPurchaseSilver')
+                ->waitForText('Silver')
+                ->assertSee('Yearly')
+                ->assertSeeIn('span#package-price', '$264')
+                ->assertSeeIn('span#total-price', '$264')
+                ->click('button.btn.btn-primary.btn-block')
+                ->assertSee('Card Number')
+                ->type('number', '4000000000000002')
+                ->type('first-name', 'Jack')
+                ->type('last-name', 'Bizzy')
+                ->type('expiry', '112025')
+                ->type('cvc', '123')
+                ->click('button#load')
+                ->waitFor('div.swal2-modal')
+                ->assertSee('Package: Silver Package')
+                ->click('button.swal2-confirm')
+                ->pause(10000)
+                ->waitFor('iframe[id=sample-inline-frame]');
+
+                // Switch ke frame parent
+                $browser->switchFrame('sample-inline-frame');
+
+                // Switch ke parent child
+                $browser->driver->switchTo()->frame('authWindow');
+                $browser->assertSee('Merchant: Xendit')
+                        ->type('external.field.password', '1234')
+                        ->press('Submit')
+                        ->waitUntilMissing('authWindow')
+                        ->waitUntilMissing('sample-inline-frame');
+                $browser->driver->switchTo()->defaultContent();
+                $browser->waitForText('Payment Success!', 15);
+    }
+
+    /**
+     * Method untuk skenario purchase package
+     *
+     * @param Browser $browser
+     * @return void
+     */
+    public function purchaseGold($browser)
+    {
+        $browser->on(new PriceAndPlan)
+                ->driver->executeScript('window.scrollTo(0, 500)');
+        $browser->click('@btnPurchaseGold')
+                ->waitForText('Gold')
+                ->assertSee('Yearly')
+                ->assertSeeIn('span#package-price', '$384')
+                ->assertSeeIn('span#total-price', '$384')
+                ->click('button.btn.btn-primary.btn-block')
+                ->assertSee('Card Number')
+                ->type('number', '4000000000000002')
+                ->type('first-name', 'Jack')
+                ->type('last-name', 'Bizzy')
+                ->type('expiry', '112025')
+                ->type('cvc', '123')
+                ->click('button#load')
+                ->waitFor('div.swal2-modal')
+                ->assertSee('Package: Gold Package')
+                ->click('button.swal2-confirm')
+                ->pause(10000)
+                ->waitFor('iframe[id=sample-inline-frame]');
+
+                // Switch ke frame parent
+                $browser->switchFrame('sample-inline-frame');
+
+                // Switch ke parent child
+                $browser->driver->switchTo()->frame('authWindow');
+                $browser->assertSee('Merchant: Xendit')
+                        ->type('external.field.password', '1234')
+                        ->press('Submit')
+                        ->waitUntilMissing('authWindow')
+                        ->waitUntilMissing('sample-inline-frame');
+                $browser->driver->switchTo()->defaultContent();
+                $browser->waitForText('Payment Success!', 15);
     }
 }

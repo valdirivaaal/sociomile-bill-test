@@ -24,7 +24,7 @@ class RegisterTest extends DuskTestCase
                     ->visit('/register')
                     ->assertSee('REGISTER')
                     ->type('name', 'Jack Bizzy')
-                    ->type('email', 'jackbizzy10@mailinator.com')
+                    ->type('email', 'jackbizzy17@mailinator.com')
                     ->type('company', 'Jack B')
                     ->type('phone', '021525235401')
                     ->type('password', '123456')
@@ -76,7 +76,7 @@ class RegisterTest extends DuskTestCase
             # Bagian aktivasi akun
             $response = $browser->visit('http://mailinator.com')
                                 ->assertSee('Mailinator')
-                                ->type('input[type=text]', 'jackbizzy10@mailinator.com')
+                                ->type('input[type=text]', 'jackbizzy17@mailinator.com')
                                 ->click('button.btn.btn-dark')
                                 ->waitForText('Verify Account')
                                 ->click('ul.single_mail-body > li.all_message-item:first-child > div > div.all_message-min_text.all_message-min_text-3')
