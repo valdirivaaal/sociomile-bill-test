@@ -23,11 +23,8 @@ class RegisterTest extends DuskTestCase
             $browser->maximize()
                     ->visit('/register')
                     ->assertSee('REGISTER')
-                    ->type('name', 'Jack Bizzy')
-                    ->type('email', 'jackbizzy17@mailinator.com')
-                    ->type('company', 'Jack B')
-                    ->type('phone', '021525235401')
-                    ->type('password', '123456')
+                    ->type('email', config('testing.email'))
+                    ->type('password', config('testing.password'))
                     ->type('password2', '123456')
                     ->check('input[type=checkbox]');
             $browser->element('#btnStarted')->getLocationOnScreenOnceScrolledIntoView();
@@ -50,12 +47,8 @@ class RegisterTest extends DuskTestCase
             $browser->maximize()
                     ->visit('/register')
                     ->assertSee('REGISTER')
-                    ->type('name', 'Jack Bizzy')
-                    // ->type('email', 'jackbizzy2@mailinator.com')
-                    ->type('company', 'Jack B')
-                    ->type('phone', '021525235401')
-                    ->type('password', '123456')
-                    ->type('password2', '123456')
+                    ->type('email', config('testing.email'))
+                    ->type('password', config('testing.password'))
                     ->check('input[type=checkbox]');
             $browser->element('#btnStarted')->getLocationOnScreenOnceScrolledIntoView();
             $browser->click('#btnStarted')
@@ -76,13 +69,14 @@ class RegisterTest extends DuskTestCase
             # Bagian aktivasi akun
             $response = $browser->visit('http://mailinator.com')
                                 ->assertSee('Mailinator')
-                                ->type('input[type=text]', 'jackbizzy17@mailinator.com')
+                                ->type('input[type=text]', config('testing.email'))
                                 ->click('button.btn.btn-dark')
                                 ->waitForText('Verify Account')
                                 ->click('ul.single_mail-body > li.all_message-item:first-child > div > div.all_message-min_text.all_message-min_text-3')
                                 ->waitForText('Verify Account')
                                 ->switchFrame('msg_body')
                                 ->clickLink('Verify now');
+
             // Agar stay di tab / halaman status verifikasi
             $window = collect($response->driver->getWindowHandles())->last();
             $response->driver->switchTo()->window($window);
@@ -102,7 +96,7 @@ class RegisterTest extends DuskTestCase
             # Bagian aktivasi akun
             $response = $browser->visit('http://mailinator.com')
                                 ->assertSee('Mailinator')
-                                ->type('input[type=text]', 'jackbuzz6@mailinator.com')
+                                ->type('input[type=text]', config('testing.email'))
                                 ->click('button.btn.btn-dark')
                                 ->waitForText('Verify Account')
                                 ->click('ul.single_mail-body > li.all_message-item:first-child > div > div.all_message-min_text.all_message-min_text-3')
@@ -119,19 +113,45 @@ class RegisterTest extends DuskTestCase
     }
 
     /**
-     * @group testAja
+     * Skenario registrasi dan verifikasi melalui form verifikasi dengan input kode verifikasi dari email
+     *
+     *
+     * @group fullRegistration
      */
-    public function testAja()
+    public function testRegisterWithEmailVerification()
     {
-        $this->browse(function (Browser $browser) {
-            $browser->visit('http://google.com')
-                    ->assertSee('Google');
-            // $browser->visit('http://gmail.com');
-        });
-        $this->browse(function (Browser $browser) {
-            // $browser->visit('http://google.com')
-            //         ->assertSee('Google');
-            $browser->visit('http://gmail.com');
+        $this->browse(function ($first, $second) {
+            /* Registrasi */
+            $first->visit('/register')
+                    ->assertSee('REGISTER')
+                    ->type('email', config('testing.email'))
+                    ->type('password', config('testing.password'))
+                    ->type('password2', config('testing.password'))
+                    ->check('input[type=checkbox]');
+            $first->element('#btnStarted')->getLocationOnScreenOnceScrolledIntoView();
+            $first->click('#btnStarted')
+                    ->waitForText('ACTIVATE', 10);
+
+            /* Verifikasi email */
+            $second->visit(config('testing.mail'))
+                    ->assertSee('Mailinator')
+                    ->type('input[type=text]', config('testing.email'))
+                    ->click('button.btn.btn-dark')
+                    ->waitForText('Verify Account')
+                    ->click('ul.single_mail-body > li.all_message-item:first-child > div > div.all_message-min_text.all_message-min_text-3')
+                    ->waitForText('Verify Account')
+                    ->switchFrame('msg_body');
+
+                    // Ambil kode verifikasi
+                    $code = $second->text('div.item > p > small > code:nth-child(3)');
+
+            /* Mengisi kode verifikasi */
+            $first->click('#ver-mail-link')
+                    ->waitForText('Input Your Verification Code')
+                    ->pause(5000)
+                    ->type('#ver-f > div > div.form-group.mb-42 > input', $code)
+                    ->click('#btnStarted2')
+                    ->waitForText('Verification Success!');
         });
     }
 }

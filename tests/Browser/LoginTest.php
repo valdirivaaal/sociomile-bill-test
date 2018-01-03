@@ -10,21 +10,20 @@ use App\User;
 
 class LoginTest extends DuskTestCase
 {
-    // use DatabaseMigrations;
     /**
      * Skenario untuk login.
      *
      * @group login
-     * @return void
+     * @test
      */
-    public function testLogin($email, $password)
+    public function testLogin()
     {
-        $this->browse(function (Browser $browser) use ($email, $password) {
+        $this->browse(function (Browser $browser) {
             $browser->maximize()
                     ->visit('/login')
                     ->assertSee('Login Now')
-                    ->type('email', $email)
-                    ->type('password', $password)
+                    ->type('email', config('testing.email'))
+                    ->type('password', config('testing.password'))
                     ->click('#btnlogin')
                     ->waitForText('Price and Plan')
                     ->assertSee('Price and Plan');
@@ -35,7 +34,7 @@ class LoginTest extends DuskTestCase
      * Skenario untuk login dengan invalid email
      *
      * @group loginInvalidEmail
-     * @return void
+     * @test
      */
     public function testLoginInvalidEmail()
     {
@@ -44,9 +43,9 @@ class LoginTest extends DuskTestCase
                     ->visit('/login')
                     ->assertSee('Login Now')
                     ->type('email', 'jackmerijack@mailinator.com')
-                    ->type('password', '123456')
+                    ->type('password', config('testing.password'))
                     ->click('#btnlogin')
-                    ->assertSee('Your email and password combination does not match');
+                    ->waitForText('Your email and password combination does not match');
         });
     }
 
@@ -54,7 +53,7 @@ class LoginTest extends DuskTestCase
      * Skenario untuk login dengan invalid password
      *
      * @group loginInvalidPassword
-     * @return void
+     * @test
      */
     public function testLoginInvalidPassword()
     {
@@ -62,19 +61,19 @@ class LoginTest extends DuskTestCase
             $browser->maximize()
                     ->visit('/login')
                     ->assertSee('Login Now')
-                    ->type('email', 'johnsnow@mailinator.com')
+                    ->type('email', config('testing.email'))
                     ->type('password', '12345')
                     ->click('#btnlogin')
                     ->pause(3000)
-                    ->assertSee('Your email and password combination does not match');
+                    ->waitForText('Your email and password combination does not match');
         });
     }
 
     /**
      * Skenario untuk lupa password
-     *
+     * @group forget
      * @group forgetPassword
-     * @return void
+     * @test
      */
     public function testForgetPassword()
     {
@@ -82,7 +81,7 @@ class LoginTest extends DuskTestCase
             $browser->maximize()
                     ->visit('/forgot-password')
                     ->assertSee('Forgot your password?')
-                    ->type('email', 'johnsnow@mailinator.com')
+                    ->type('email', config('testing.email'))
                     ->click('#btnlogin')
                     ->waitForText('Password reset link Sent');
         });
@@ -90,29 +89,29 @@ class LoginTest extends DuskTestCase
 
     /**
      * Skenario buka link lupa password lewat email
-     *
+     * @group forget
      * @group linkForgetPassword
-     * @return void
+     * @test
      */
     public function testLinkForgetPassword()
     {
-        $this->browse(function (Browser $browse) {
+        $this->browse(function (Browser $browser) {
             $response = $browser->maximize()
-                                ->visit('http://mailinator.com')
+                                ->visit(config('testing.mail'))
                                 ->assertSee('Mailinator')
-                                ->type('input[type=text]', 'johnsnow@mailinator.com')
+                                ->type('input[type=text]', config('testing.email'))
                                 ->click('button.btn.btn-dark')
                                 ->waitForText('Reset Password')
                                 ->click('ul.single_mail-body > li.all_message-item:first-child > div > div.all_message-min_text.all_message-min_text-3')
-                                ->waitForText('Password Reset Confirmation')
                                 ->switchFrame('msg_body')
+                                ->waitForText('Password Reset Confirmation')
                                 ->clickLink('Reset now');
             // Stay di tab reset password
             $window = collect($response->driver->getWindowHandles())->last();
-            $response->driver->switchTo->window($window);
+            $response->driver->switchTo()->window($window);
             $response->waitForText('Please enter your new password.')
-                     ->type('password', '123456')
-                     ->type('password2', '123456')
+                     ->type('password', config('testing.password'))
+                     ->type('password2', config('testing.password'))
                      ->click('#btnlogin');
             /**
              * Note :
@@ -120,7 +119,7 @@ class LoginTest extends DuskTestCase
              * sedangkan sekarang yg tampil malah halaman link reset password terkirim
              *
              */
-            $response->assertSee('Success');
+            $response->waitForText('Success');
         });
     }
 
@@ -128,7 +127,7 @@ class LoginTest extends DuskTestCase
      * Skenario logout
      *
      * @group logout
-     * @return void
+     * @test
      */
     public function testLogOut()
     {

@@ -21,7 +21,7 @@ class PricingTest extends DuskTestCase
     {
         // Do login
         $login = new LoginTest;
-        $login->testLogin('jackbizzy16@mailinator.com', '123456');
+        $login->testLogin();
 
         $this->browse(function (Browser $browser) {
             $browser->on(new PriceAndPlan)
@@ -47,6 +47,76 @@ class PricingTest extends DuskTestCase
     }
 
     /**
+     * Skenario untuk user memilih trial silver package.
+     *
+     * @group silverTrial
+     * @return void
+     */
+    public function testSilverTrial()
+    {
+        // Do login
+        $login = new LoginTest;
+        $login->testLogin();
+
+        $this->browse(function (Browser $browser) {
+            $browser->on(new PriceAndPlan)
+                    ->driver->executeScript('window.scrollTo(0, 500)');
+            $browser->waitFor('@btnTrialSilver')
+                    ->click('@btnTrialSilver')
+                    ->whenAvailable('.swal2-modal', function($modal) {
+                        $modal->waitForText('Success')
+                              ->click('button.swal2-confirm.swal2-styled');
+                      })
+                    ->waitUntilMissing('.swal2-modal')
+                    ->waitForText('You have selected 7 days') // Teks paket terpilih
+                    ->assert('@divBronzeUnselected') // Div paket terpilih berubah menjadi biru
+                    ->assert('@divSilverSelected') // Div paket yg tidak terpilih menjadi abu
+                    ->assert('@divGoldUnselected') // Div paket yg tidak terpilih menjadi abu
+                    ->assert('@btnTrialBronzeDisabled') // Button bronze blocked
+                    ->assert('@btnTrialSilverBlocked') // Button silver disabled
+                    ->assert('@btnTrialGoldDisabled'); // Button gold disabled
+        });
+
+        // Logout
+        $login->testLogOut();
+    }
+
+    /**
+     * Skenario untuk user memilih trial gold package.
+     *
+     * @group goldTrial
+     * @return void
+     */
+    public function testGoldTrial()
+    {
+        // Do login
+        $login = new LoginTest;
+        $login->testLogin();
+
+        $this->browse(function (Browser $browser) {
+            $browser->on(new PriceAndPlan)
+                    ->driver->executeScript('window.scrollTo(0, 500)');
+            $browser->waitFor('@btnTrialGold')
+                    ->click('@btnTrialGold')
+                    ->whenAvailable('.swal2-modal', function($modal) {
+                        $modal->waitForText('Success')
+                              ->click('button.swal2-confirm.swal2-styled');
+                      })
+                    ->waitUntilMissing('.swal2-modal')
+                    ->waitForText('You have selected 7 days') // Teks paket terpilih
+                    ->assert('@divBronzeUnselected') // Div paket terpilih berubah menjadi biru
+                    ->assert('@divSilverUnselected') // Div paket yg tidak terpilih menjadi abu
+                    ->assert('@divGoldSelected') // Div paket yg tidak terpilih menjadi abu
+                    ->assert('@btnTrialBronzeDisabled') // Button bronze blocked
+                    ->assert('@btnTrialSilverDisabled') // Button silver disabled
+                    ->assert('@btnTrialGoldBlocked'); // Button gold disabled
+        });
+
+        // Logout
+        $login->testLogOut();
+    }
+
+    /**
      * Skenario memilih plan anually, yg dicek adalah value table yg lebih murah
      *
      * @group planAnnually
@@ -56,7 +126,7 @@ class PricingTest extends DuskTestCase
     {
         // Do login
         $login = new LoginTest;
-        $login->testLogin('jackbizzy9@mailinator.com', '123456');
+        $login->testLogin();
 
         $this->browse(function (Browser $browser) {
             $browser->click('div.slider.round')
@@ -77,7 +147,7 @@ class PricingTest extends DuskTestCase
     {
         // Do lgin
         $login = new LoginTest;
-        $login->testLogin('jackbizzy16@mailinator.com', '123456');
+        $login->testLogin();
 
         $this->browse(function (Browser $browser) {
 
@@ -100,7 +170,7 @@ class PricingTest extends DuskTestCase
     {
         // Do lgin
         $login = new LoginTest;
-        $login->testLogin('jackbizzy16@mailinator.com', '123456');
+        $login->testLogin();
 
         $this->browse(function (Browser $browser) {
 
@@ -123,7 +193,7 @@ class PricingTest extends DuskTestCase
     {
         // Do lgin
         $login = new LoginTest;
-        $login->testLogin('jackbizzy17@mailinator.com', '123456');
+        $login->testLogin();
 
         $this->browse(function (Browser $browser) {
 
@@ -145,7 +215,7 @@ class PricingTest extends DuskTestCase
     {
         // Do login
         $login = new LoginTest;
-        $login->testLogin('jackbizzy8@mailinator.com', '123456');
+        $login->testLogin();
 
         $this->browse(function (Browser $browser) {
             $browser->click('#v-pills-billing-tab')
@@ -177,7 +247,7 @@ class PricingTest extends DuskTestCase
     {
         // Do login
         $login = new LoginTest;
-        $login->testLogin('jackbizzy9@mailinator.com', '123456');
+        $login->testLogin();
 
         $this->browse(function (Browser $browser) {
 
@@ -202,7 +272,7 @@ class PricingTest extends DuskTestCase
     {
         // Do login
         $login = new LoginTest;
-        $login->testLogin('jackbizzy6@mailinator.com', '123456');
+        $login->testLogin();
 
         $this->browse(function (Browser $browser) {
 
@@ -235,7 +305,7 @@ class PricingTest extends DuskTestCase
     {
         // Do login
         $login = new LoginTest;
-        $login->testLogin('jackbizzy6@mailinator.com', '123456');
+        $login->testLogin();
 
         $this->browse(function (Browser $browser) {
 
@@ -276,7 +346,7 @@ class PricingTest extends DuskTestCase
     {
         // Do login
         $login = new LoginTest;
-        $login->testLogin('jackbizzy6@mailinator.com', '123456');
+        $login->testLogin();
 
         $this->browse(function (Browser $browser) {
 
@@ -314,7 +384,7 @@ class PricingTest extends DuskTestCase
     {
         // Do login
         $login = new LoginTest;
-        $login->testLogin('jackbizzy6@mailinator.com', '123456');
+        $login->testLogin();
 
         $this->browse(function (Browser $browser) {
 
@@ -359,7 +429,7 @@ class PricingTest extends DuskTestCase
     {
         // Do login
         $login = new LoginTest;
-        $login->testLogin('jackbuzz@mailinator.com', '123456');
+        $login->testLogin();
 
         $this->browse(function (Browser $browser) {
             // Cek kondisi apakah benar halaman expire
@@ -389,7 +459,7 @@ class PricingTest extends DuskTestCase
                 ->driver->executeScript('window.scrollTo(0, 500)');
         $browser->click('@btnPurchaseBronze')
                 ->waitForText('Bronze')
-                ->assertSee('Yearly')
+                ->assertSee('Annually')
                 ->assertSeeIn('span#package-price', '$180')
                 ->assertSeeIn('span#total-price', '$180')
                 ->click('button.btn.btn-primary.btn-block')
@@ -417,7 +487,10 @@ class PricingTest extends DuskTestCase
                         ->waitUntilMissing('authWindow')
                         ->waitUntilMissing('sample-inline-frame');
                 $browser->driver->switchTo()->defaultContent();
-                $browser->waitForText('Payment Success!', 15);
+                $browser->waitForText('Payment Success!', 20)
+                        ->visit('/dashboard#v-pills-billing')
+                        ->waitForText('Billing')
+                        ->assert('@rowBillingTable');
     }
 
     /**
@@ -432,7 +505,7 @@ class PricingTest extends DuskTestCase
                 ->driver->executeScript('window.scrollTo(0, 500)');
         $browser->click('@btnPurchaseSilver')
                 ->waitForText('Silver')
-                ->assertSee('Yearly')
+                ->assertSee('ANNUALLY')
                 ->assertSeeIn('span#package-price', '$264')
                 ->assertSeeIn('span#total-price', '$264')
                 ->click('button.btn.btn-primary.btn-block')
@@ -460,7 +533,10 @@ class PricingTest extends DuskTestCase
                         ->waitUntilMissing('authWindow')
                         ->waitUntilMissing('sample-inline-frame');
                 $browser->driver->switchTo()->defaultContent();
-                $browser->waitForText('Payment Success!', 15);
+                $browser->waitForText('Payment Success!', 20)
+                        ->visit('/dashboard#v-pills-billing')
+                        ->waitForText('Billing')
+                        ->assert('@rowBillingTable');
     }
 
     /**
@@ -475,7 +551,7 @@ class PricingTest extends DuskTestCase
                 ->driver->executeScript('window.scrollTo(0, 500)');
         $browser->click('@btnPurchaseGold')
                 ->waitForText('Gold')
-                ->assertSee('Yearly')
+                ->assertSee('ANNUALLY')
                 ->assertSeeIn('span#package-price', '$384')
                 ->assertSeeIn('span#total-price', '$384')
                 ->click('button.btn.btn-primary.btn-block')
@@ -503,6 +579,9 @@ class PricingTest extends DuskTestCase
                         ->waitUntilMissing('authWindow')
                         ->waitUntilMissing('sample-inline-frame');
                 $browser->driver->switchTo()->defaultContent();
-                $browser->waitForText('Payment Success!', 15);
+                $browser->waitForText('Payment Success!', 20)
+                        ->visit('/dashboard#v-pills-billing')
+                        ->waitForText('Billing')
+                        ->assert('@rowBillingTable');
     }
 }

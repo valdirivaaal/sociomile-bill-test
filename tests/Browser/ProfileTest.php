@@ -12,6 +12,7 @@ class ProfileTest extends DuskTestCase
     /**
      * Skenario untuk edit halaman profile.
      *
+     * @group login
      * @group profile
      * @return void
      */
@@ -19,13 +20,14 @@ class ProfileTest extends DuskTestCase
     {
         // Do login
         $login = new LoginTest;
-        $login->testLogin('jackbizzy6@mailinator.com', '123456');
+        // $login->testLogin();
 
         $this->browse(function (Browser $browser) {
             $browser->click('#v-pills-profile-tab')
                     ->waitForText('Update Profile')
-                    ->type('name', 'Jack Bizzy 6')
-                    ->type('div > input[type=email]', 'jackbizzy6@mailinator')
+                    ->attach('profiles', __DIR__.'/usop.jpg')
+                    ->type('name', 'Jack Bizzy 8')
+                    ->type('div > input[type=email]', config('testing.email'))
                     ->type('phone', '0217894762')
                     ->type('company', 'Jack B Corp')
                     ->type('address', 'Kramat Street')

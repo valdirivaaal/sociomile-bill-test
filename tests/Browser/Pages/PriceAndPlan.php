@@ -65,6 +65,9 @@ class PriceAndPlan extends BasePage
             '@divBronzeUnselected' => 'div.body-content > div > div.choose-plan:nth-child(1).grey',
             '@divSilverUnselected' => 'div.body-content > div > div.choose-plan:nth-child(2).grey',
             '@divGoldUnselected' => 'div.body-content > div > div.choose-plan:nth-child(3).grey',
+
+            # Row table billing
+            '@rowBillingTable' => '#v-pills-billing > div > div.card-body > table > tbody > tr:nth-child(1)',
         ];
     }
 }
