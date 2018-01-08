@@ -151,7 +151,9 @@ class RegisterTest extends DuskTestCase
                     ->pause(5000)
                     ->type('#ver-f > div > div.form-group.mb-42 > input', $code)
                     ->click('#btnStarted2')
-                    ->waitForText('Verification Success!');
+                    ->waitForText('Verification Success!')
+                    ->click('#btnStarted')
+                    ->waitForText('Login Now');
         });
     }
 }

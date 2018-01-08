@@ -29,7 +29,7 @@ class FullTest extends DuskTestCase
     /**
      * Skenario full dari register sampai beli paket silver
      *
-     * @group caseBronze
+     * @group caseSilver
      */
     public function testFullScenarioSilver()
     {
@@ -45,7 +45,7 @@ class FullTest extends DuskTestCase
     /**
      * Skenario full dari register sampai beli paket gold
      *
-     * @group caseBronze
+     * @group caseGold
      */
     public function testFullScenarioGold()
     {

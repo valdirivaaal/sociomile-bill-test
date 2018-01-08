@@ -456,6 +456,7 @@ class PricingTest extends DuskTestCase
     public function purchaseBronze($browser)
     {
         $browser->on(new PriceAndPlan)
+                ->waitForText('Price and Plan')
                 ->driver->executeScript('window.scrollTo(0, 500)');
         $browser->click('@btnPurchaseBronze')
                 ->waitForText('Bronze')
@@ -502,10 +503,11 @@ class PricingTest extends DuskTestCase
     public function purchaseSilver($browser)
     {
         $browser->on(new PriceAndPlan)
+                ->waitForText('Price and Plan')
                 ->driver->executeScript('window.scrollTo(0, 500)');
         $browser->click('@btnPurchaseSilver')
                 ->waitForText('Silver')
-                ->assertSee('ANNUALLY')
+                ->assertSee('Annually')
                 ->assertSeeIn('span#package-price', '$264')
                 ->assertSeeIn('span#total-price', '$264')
                 ->click('button.btn.btn-primary.btn-block')
@@ -548,10 +550,11 @@ class PricingTest extends DuskTestCase
     public function purchaseGold($browser)
     {
         $browser->on(new PriceAndPlan)
+                ->waitForText('Price and Plan')
                 ->driver->executeScript('window.scrollTo(0, 500)');
         $browser->click('@btnPurchaseGold')
                 ->waitForText('Gold')
-                ->assertSee('ANNUALLY')
+                ->assertSee('Annually')
                 ->assertSeeIn('span#package-price', '$384')
                 ->assertSeeIn('span#total-price', '$384')
                 ->click('button.btn.btn-primary.btn-block')
