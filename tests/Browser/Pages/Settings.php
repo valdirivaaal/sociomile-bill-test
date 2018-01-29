@@ -2,11 +2,10 @@
 
 namespace Tests\Browser\Pages;
 
-use App\Models\User;
 use Laravel\Dusk\Browser;
 use Laravel\Dusk\Page as BasePage;
 
-class Login extends BasePage
+class Settings extends BasePage
 {
     /**
      * Get the URL for the page.
@@ -15,7 +14,7 @@ class Login extends BasePage
      */
     public function url()
     {
-        return '/login';
+        return '/setting';
     }
 
     /**
@@ -37,10 +36,7 @@ class Login extends BasePage
     public function elements()
     {
         return [
-            '@smEmail' => '#f > div.group-input > div:nth-child(1) > input',
-            '@smPassword' => '#f > div.group-input > div:nth-child(3) > input',
-            '@smCheckRemember' => '#f > label > input',
-            '@btnLogin' => '#btnlogin',
+            '@tabAccountChannel' => '#main > div.layout-two-menu.hidden-xs.hidden-sm > div.section-main > ul > li:nth-child(4) > a',
         ];
     }
 }

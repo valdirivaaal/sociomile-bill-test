@@ -1,0 +1,48 @@
+### Sprint Testing
+------------------
+
+1. Web Chat Close Ticket Workflow
+
+2. CSAT
+    ~> Deskripsi : Semacam kuisioner kepuasan pelanggan yg dikirim ke email setelah suatu tiket telah ditutup
+
+3. Sociomile Mobile Revamp
+    ~> Deskripsi : Billing sociomile versi mobile
+
+============================================================================================================
+
+1. Notifikasi assigned tiket
+    - Dari list tiket bisa pilih agent mana yg handle
+    - Setelah dipilih akan muncul di notifikasi
+    - Yang harus di cek apakah masuk notifnya
+
+2. CSAT -> appb2b-sm.s45.in (Staging b2b)
+    # Setting Page Web Chat
+        ~> Deskripsi : Halaman setting untuk web chat
+    # Web chat close ticket workflow
+        ~> Deskripsi : CSAT pada saat ticket di sociomile di close
+            # Alur :
+                1. Email
+                    - Kirim complain ke email yg di setup di sociomile
+                    - Cek first response di email masuk apa tidak
+                    - Cek ke sociomile tiketnya masuk apa tidak (kasih jeda beberapa detik, max 1 menit)
+                    - Open tiketnya, setelah itu close
+                    - Cek ke email, apakah ada email CSATnya
+                    - Kalo ada, buka email tsb. Cek didalamnya ada content Satisfied atau tidak
+                    - Kalo ada, click satisfied / unsatisfied
+                    - Cek apakah bener buka landing page success atau tidak
+                2. Twitter
+                    - Mention ke akun yg di setup di sociomile
+                    - Cek first response di notifikasi twitter
+                    - Cek ke sociomile tiketnya masuk apa tidak (kasih jeda beberapa detik, max 1 menit)
+                    - Open tiketnya, setelah itu close
+                    - Cek ke notifikasi twitter, apakah ada pesan beserta link yg membawa ke halaman csat
+                    - Klo ada, klik setelah itu bakal muncul halaman login twitter
+                    - Setelah login akan muncul landing page sama seperti content email satisfied
+                    - Jika bener ke halaman tsb klik satisfied / unsatisfied
+                    - Cek apakah bener buka landing page success atau tidak
+
+    # CSAT Web Chat (b2b only)
+        ~> Deskripsi :
+                    - Sama seperti CSAT di ticket, namun content satisfied nya ada di widget chat
+                    - Content tsb muncul jika chat dari usernya sudah di close / idle
