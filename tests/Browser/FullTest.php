@@ -307,13 +307,11 @@ class FullTest extends DuskTestCase
                ->click('div.sociomile-container')->pause(3000)
                ->assertSee('Selamat datang di live chat kami.')
                ->type('name', 'John Pantau')
-               ->type('email', 'johnpantau'.time().'@mail.com')
+               ->type('email', 'johnpantau@mail.com')
                ->type('message', 'Halo ini automate pesan oleh laravel dusk')
                ->click('button.sociomile-btn')
                ->waitForText('Mohon tunggu sebentar')->pause(3000)
-               ->click('div.sociomile-container.sociomile-survey > div.sociomile-body > div > p:nth-child(2) > a') // Satisfy
-               ->click('div.sociomile-container.sociomile-survey > div.sociomile-body > div > p:nth-child(3) > a') // Unsatisfy
-               ->waitForText('Submitting your response...')
+               // ->waitFor('#thechat')
                ;
 
             /* PICK CHAT OLEH AGENT */
@@ -322,6 +320,22 @@ class FullTest extends DuskTestCase
                 ->click('div.panel-body > a.chats')->pause(2000)
                 ->waitFor('div.win-panel')->pause(3000)
                 ->assertSee('Halo ini automate pesan oleh laravel dusk');
+
+            /* BALES PESAN OLEH USER */
+            $first
+                ->type('content', 'Membalas pesan')->pause(2000)
+                ->keys('#content', '{enter}');
+
+            /* CEK APA BALESAN MASUK */
+            $second
+                ->pause(2000)
+                ->assertSee('Membalas pesan');
+
+            /* BAGIAN USER UNTUK KLIK SATISFIED / UNSATISFIED */
+            // $first
+            //     ->click('div.sociomile-container.sociomile-survey > div.sociomile-body > div > p:nth-child(2) > a') // Satisfy
+            //     ->click('div.sociomile-container.sociomile-survey > div.sociomile-body > div > p:nth-child(3) > a') // Unsatisfy
+            //     ->waitForText('Submitting your response...');
 
             /* BAGIAN LOGOUT */
             $second
@@ -334,6 +348,70 @@ class FullTest extends DuskTestCase
      }
 
      /**
+      * Skenario untuk assign tiket ke agent oleh supervisor
+      *
+      * @group caseAssignment
+      */
+     public function testAssignmentTicket()
+     {
+         $this->browse(function ($first, $second) {
+
+             // Login agent 6
+             $second
+                ->resize(1440, 900  )
+                ->visit('https://appb2b-sm.s45.in')
+                ->waitForText('Login')
+                ->type('email', 'agent7@r10.co')
+                ->type('password', '123456')
+                ->click('#btnlogin')
+                ->waitForText('DASHBOARD', 10);
+
+             // Login supervisor
+             $first
+                ->resize(1440, 900  )
+                ->visit('https://appb2b-sm.s45.in')
+                ->waitForText('Login')
+                ->type('email', 'super5@r10.co')
+                ->type('password', '123456')
+                ->click('#btnlogin')
+                ->waitForText('DASHBOARD', 10);
+
+
+            $first
+                ->waitFor('div.timelines', 20)->pause(5000)
+                ->waitFor('#cmiddle > stream > div.timelines > div:nth-child(3) > div > div.tl-heading > div.content-right.pull-right > div')
+                ->click('#cmiddle > stream > div.timelines > div:nth-child(3) > div > div.tl-heading > div.content-right.pull-right > div')->pause(2000)
+                ->click('#cmiddle > stream > div.timelines > div:nth-child(3) > div > div.tl-heading > div.content-right.pull-right > div > ul > li:nth-child(8)')->pause(2000)
+                ->waitFor('#assignment > div.popup')
+                ->type('agentassign', 'Agent 7')->pause(3000)
+                ->click('#assignment > div > div > form > div > div.panel-body > span.twitter-typeahead > div > div > div')->pause(2000)
+                ->click('div.panel > div.panel-footer > button:nth-child(1)')
+                ->waitUntilMissing('#assignment > div.popup');
+                $id_ticket = explode(' ', $first->text('#cmiddle > stream > div.timelines > div:nth-child(3) > div > div.tl-heading > div.content-right.pull-right > span.label.label-red.pull-right'));
+
+            // Logout supervisor
+            $first
+                ->click('div.navr.user-nav > a')->pause(3000)
+                ->clickLink('Logout')
+                ->waitForText('Login', 8)
+                ->assertSee('Login');
+
+            // Lihat notifikasi
+            $second
+                ->pause(3000)
+                ->click('#notification > a')->pause(2000)
+                ->assertSeeIn('#notification > ul > li:nth-child(1) > a', 'assignment ticket '.$id_ticket[1]);
+
+            // Logout supervisor
+            $second
+                ->click('div.navr.user-nav > a')->pause(3000)
+                ->clickLink('Logout')
+                ->waitForText('Login', 8)
+                ->assertSee('Login');
+         });
+     }
+
+     /**
       *
       *
       * @group caseRevamp
@@ -342,7 +420,41 @@ class FullTest extends DuskTestCase
      {
          $this->browse(function ($first) {
             $first
-                ->visit('https://sm.ngetest.com')->pause(30000);
+                ->visit('https://sm.ngetest.com')->pause(10000)
+                ->type('#checkform > div:nth-child(1) > div > div > input', config('testing.email'))
+                ->type('#checkform > div:nth-child(2) > div > div > input', config('testing.password'))
+                ->click('#checkform > div:nth-child(4) > div > button')
+                ->waitForText('Price & Plan')
+                ->click('#myTabContent > div > div:nth-child(2) > div > div > div.col-5.price-place > div > a')
+                ->waitFor('button.purchase-blue')
+                ->click('button.purchase-blue')
+                ->waitForText('BRONZE PACKAGE')
+                ->click('button.btn-success')
+                ->waitForText('PAYMENT FOR')
+                ->type('#fsend > div.credit-card.box > div > div:nth-child(1) > div > div > input', '4000000000000002')
+                ->type('#fsend > div.credit-card.box > div > div:nth-child(2) > div > div > input', 'Jack')
+                ->type('#fsend > div.credit-card.box > div > div:nth-child(3) > div > div > input', 'Buzz')
+                ->type('#fsend > div.credit-card.box > div > div:nth-child(4) > div > div > input', '12/2025')
+                ->type('#fsend > div.credit-card.box > div > div:nth-child(5) > div > div > input', '123')
+                ->click('button.btn-success')
+                ->waitFor('iframe[id=sample-inline-frame]');
+
+                // Switch ke frame parent
+                $browser->switchFrame('sample-inline-frame');
+
+                // Switch ke parent child
+                $browser->driver->switchTo()->frame('authWindow');
+                $browser->assertSee('Merchant: Xendit')
+                        ->type('external.field.password', '1234')
+                        ->press('Submit')
+                        ->waitUntilMissing('authWindow')
+                        ->waitUntilMissing('sample-inline-frame');
+                $browser->driver->switchTo()->defaultContent();
+                $browser->waitForText('Payment Success!', 20)
+                        ->visit('/dashboard#v-pills-billing')
+                        ->waitForText('Billing')
+                        ->assert('@rowBillingTable')
+                ;
          });
      }
 }

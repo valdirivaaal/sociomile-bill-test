@@ -15,14 +15,17 @@
     - Dari list tiket bisa pilih agent mana yg handle
     - Setelah dipilih akan muncul di notifikasi
     - Yang harus di cek apakah masuk notifnya
+    STATUS : DONE
 
 2. CSAT -> appb2b-sm.s45.in (Staging b2b)
     # Setting Page Web Chat
         ~> Deskripsi : Halaman setting untuk web chat
+        STATUS : DONE
+
     # Web chat close ticket workflow
         ~> Deskripsi : CSAT pada saat ticket di sociomile di close
             # Alur :
-                1. Email
+                1. Email    STATUS : DONE (ADA MASALAH SAAT KONEKIN EMAIL, CONNECTION TIMEOUT 110)
                     - Kirim complain ke email yg di setup di sociomile
                     - Cek first response di email masuk apa tidak
                     - Cek ke sociomile tiketnya masuk apa tidak (kasih jeda beberapa detik, max 1 menit)
@@ -31,7 +34,7 @@
                     - Kalo ada, buka email tsb. Cek didalamnya ada content Satisfied atau tidak
                     - Kalo ada, click satisfied / unsatisfied
                     - Cek apakah bener buka landing page success atau tidak
-                2. Twitter
+                2. Twitter  STATUS : DONE
                     - Mention ke akun yg di setup di sociomile
                     - Cek first response di notifikasi twitter
                     - Cek ke sociomile tiketnya masuk apa tidak (kasih jeda beberapa detik, max 1 menit)
@@ -42,7 +45,7 @@
                     - Jika bener ke halaman tsb klik satisfied / unsatisfied
                     - Cek apakah bener buka landing page success atau tidak
 
-    # CSAT Web Chat (b2b only)
+    # CSAT Web Chat (b2b only)  STATUS : DONE (DI WIDGET WEB CHAT BLM ADA CSAT SETELAH TIKET DI CLOSE)
         ~> Deskripsi :
                     - Sama seperti CSAT di ticket, namun content satisfied nya ada di widget chat
                     - Content tsb muncul jika chat dari usernya sudah di close / idle
