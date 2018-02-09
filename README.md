@@ -1,2 +1,1 @@
-# sociomile-bill-test
-temporary repository
+# sociomile-browser-test
